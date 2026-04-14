@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Трекер студенческих проектов</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📚 Трекер студенческих проектов</h1>
+        <p>
+          Централизованное управление проектами, командами и статусами
+          выполнения
+        </p>
+        <div class="nav-links">
+          <a id="homeLink">🏠 Главная</a>
+          <a id="feedbackLink">📝 Обратная связь</a>
+        </div>
+      </div>
+
+      <div class="welcome-card">
+        <h2>👋 Добро пожаловать!</h2>
+        <p>
+          Отслеживайте студенческие проекты, статусы работ и участников.
+          Создавайте проекты, редактируйте, удаляйте и фильтруйте по этапам
+          выполнения. Все изменения автоматически сохраняются.
+        </p>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+          <div class="stat-number" id="statTotal">0</div>
+          <div class="stat-label">Всего проектов</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statPlanning">0</div>
+          <div class="stat-label">Планирование</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statWorking">0</div>
+          <div class="stat-label">В работе</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statReview">0</div>
+          <div class="stat-label">На проверке</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statDone">0</div>
+          <div class="stat-label">Завершены</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="filter-group">
+          <label>📌 Фильтр по статусу:</label>
+          <select id="statusFilter">
+            <option value="all">Все проекты</option>
+            <option value="Планирование">📋 Планирование</option>
+            <option value="В работе">⚙️ В работе</option>
+            <option value="На проверке">🔍 На проверке</option>
+            <option value="Завершен">✅ Завершен</option>
+          </select>
+        </div>
+        <div class="api-buttons">
+          <button class="btn-api" id="importGoogleBtn">
+            📥 Импорт из Google Sheets
+          </button>
+        </div>
+        <button class="btn-create" id="createProjectBtn">
+          + Создать новый проект
+        </button>
+      </div>
+
+      <div class="projects-table" id="tableView">
+        <table>
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Описание</th>
+              <th>Участники</th>
+              <th>Статус</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="projectsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="cardsView" class="projects-cards"></div>
+    </div>
+
+    <div id="projectModal" class="modal">
+      <div class="modal-content">
+        <h3 id="modalTitle">➕ Новый проект</h3>
+        <input
+          type="text"
+          id="projectName"
+          placeholder="Название проекта (макс. 50 символов)"
+          maxlength="50"
+        />
+        <div class="char-counter"><span id="nameCounter">0</span>/50</div>
+        <textarea
+          id="projectDesc"
+          rows="2"
+          placeholder="Краткое описание"
+          maxlength="200"
+        ></textarea>
+        <div class="char-counter"><span id="descCounter">0</span>/200</div>
+        <input
+          type="text"
+          id="projectParticipants"
+          placeholder="Участники (через запятую)"
+        />
+        <select id="projectStatus">
+          <option value="Планирование">📋 Планирование</option>
+          <option value="В работе">⚙️ В работе</option>
+          <option value="На проверке">🔍 На проверке</option>
+          <option value="Завершен">✅ Завершен</option>
+        </select>
+        <div class="modal-buttons">
+          <button class="btn-cancel" id="cancelModalBtn">Отмена</button>
+          <button class="btn-save" id="saveProjectBtn">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="googleSheetModal" class="modal">
+      <div class="modal-content">
+        <h3>📥 Импорт из Google Sheets</h3>
+        <p style="margin-bottom: 16px">
+          Введите ссылку на публичную Google таблицу. Таблица должна содержать
+          столбцы:
+        </p>
+        <ul style="margin-bottom: 16px; margin-left: 20px; color: #475569">
+          <li>A — Название проекта</li>
+          <li>B — Описание</li>
+          <li>C — Участники (через запятую)</li>
+          <li>D — Статус (Планирование/В работе/На проверке/Завершен)</li>
+        </ul>
+        <input
+          type="text"
+          id="googleSheetUrl"
+          placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+        />
+        <div class="modal-buttons">
+          <button class="btn-cancel" id="closeGoogleSheetModal">Отмена</button>
+          <button class="btn-save" id="confirmImportBtn">Импортировать</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
