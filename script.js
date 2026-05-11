@@ -163,19 +163,60 @@ function deleteProject(id) {
   }
 }
 
-function openEditModal(id) {
-  const project = projects.find((p) => p.id === id);
-  if (!project) return;
-  currentEditId = id;
-  document.getElementById("modalTitle").innerText = "✏️ Редактирование проекта";
-  document.getElementById("projectName").value = project.name;
-  document.getElementById("projectDesc").value = project.description;
-  document.getElementById("projectParticipants").value =
-    project.participants.join(", ");
-  document.getElementById("projectStatus").value = project.status;
-  document.getElementById("nameCounter").innerText = project.name.length;
-  document.getElementById("descCounter").innerText = project.description.length;
-  document.getElementById("projectModal").style.display = "flex";
+function getParticipantsFromFields() {
+  const nameInputs = document.querySelectorAll(
+    "#participantsContainer .participant-name",
+  );
+  const participants = [];
+  nameInputs.forEach((input) => {
+    const name = input.value.trim();
+    if (name) {
+      participants.push(name);
+    }
+  });
+  return participants;
+}
+
+function clearParticipantFields() {
+  const container = document.getElementById("participantsContainer");
+  container.innerHTML = `
+        <div class="participant-field" style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" class="participant-name" placeholder="ФИО участника" style="flex: 1;">
+            <button type="button" class="btn-remove-participant" style="background: #fee2e2; border: none; border-radius: 20px; padding: 0 12px; cursor: pointer; color: #991b1b;">🗑️</button>
+        </div>
+    `;
+  attachParticipantEvents();
+}
+
+function attachParticipantEvents() {
+  document.querySelectorAll(".btn-remove-participant").forEach((btn) => {
+    btn.removeEventListener("click", handleRemoveClick);
+    btn.addEventListener("click", handleRemoveClick);
+  });
+}
+
+function handleRemoveClick(e) {
+  const fieldDiv = e.target.closest(".participant-field");
+  if (fieldDiv && document.querySelectorAll(".participant-field").length > 1) {
+    fieldDiv.remove();
+  } else {
+    showToast("Должен быть хотя бы один участник");
+  }
+}
+
+function addParticipantField() {
+  const container = document.getElementById("participantsContainer");
+  const newField = document.createElement("div");
+  newField.className = "participant-field";
+  newField.style.display = "flex";
+  newField.style.gap = "8px";
+  newField.style.marginBottom = "12px";
+  newField.innerHTML = `
+        <input type="text" class="participant-name" placeholder="ФИО участника" style="flex: 1;">
+        <button type="button" class="btn-remove-participant" style="background: #fee2e2; border: none; border-radius: 20px; padding: 0 12px; cursor: pointer; color: #991b1b;">🗑️</button>
+    `;
+  container.appendChild(newField);
+  attachParticipantEvents();
 }
 
 function openCreateModal() {
@@ -183,19 +224,52 @@ function openCreateModal() {
   document.getElementById("modalTitle").innerText = "➕ Новый проект";
   document.getElementById("projectName").value = "";
   document.getElementById("projectDesc").value = "";
-  document.getElementById("projectParticipants").value = "";
+  clearParticipantFields();
   document.getElementById("projectStatus").value = "Планирование";
   document.getElementById("nameCounter").innerText = "0";
   document.getElementById("descCounter").innerText = "0";
   document.getElementById("projectModal").style.display = "flex";
 }
 
+function openEditModal(id) {
+  const project = projects.find((p) => p.id === id);
+  if (!project) return;
+  currentEditId = id;
+  document.getElementById("modalTitle").innerText = "✏️ Редактирование проекта";
+  document.getElementById("projectName").value = project.name;
+  document.getElementById("projectDesc").value = project.description;
+
+  const container = document.getElementById("participantsContainer");
+  container.innerHTML = "";
+  if (project.participants.length === 0) {
+    addParticipantField();
+    document.querySelector(".participant-name").value = "";
+  } else {
+    project.participants.forEach((participant) => {
+      const newField = document.createElement("div");
+      newField.className = "participant-field";
+      newField.style.display = "flex";
+      newField.style.gap = "8px";
+      newField.style.marginBottom = "12px";
+      newField.innerHTML = `
+                <input type="text" class="participant-name" placeholder="ФИО участника" style="flex: 1;" value="${escapeHtml(participant)}">
+                <button type="button" class="btn-remove-participant" style="background: #fee2e2; border: none; border-radius: 20px; padding: 0 12px; cursor: pointer; color: #991b1b;">🗑️</button>
+            `;
+      container.appendChild(newField);
+    });
+  }
+  attachParticipantEvents();
+
+  document.getElementById("projectStatus").value = project.status;
+  document.getElementById("nameCounter").innerText = project.name.length;
+  document.getElementById("descCounter").innerText = project.description.length;
+  document.getElementById("projectModal").style.display = "flex";
+}
+
 function saveProject() {
   const name = document.getElementById("projectName").value.trim();
   const description = document.getElementById("projectDesc").value.trim();
-  const participantsRaw = document
-    .getElementById("projectParticipants")
-    .value.trim();
+  let participants = getParticipantsFromFields();
   const status = document.getElementById("projectStatus").value;
 
   if (!name) {
@@ -203,11 +277,7 @@ function saveProject() {
     return false;
   }
 
-  let participants = participantsRaw
-    .split(",")
-    .map((p) => p.trim())
-    .filter((p) => p);
-  if (!participants.length) participants = ["Участник не указан"];
+  if (participants.length === 0) participants = ["Участник не указан"];
 
   if (currentEditId === null) {
     const newId = Date.now();
@@ -253,7 +323,6 @@ function convertSheetDataToProjects(data) {
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (!row[0] || !row[0].trim()) continue;
-
     const name = row[0]?.trim() || "Без названия";
     const description = row[1]?.trim() || "Без описания";
     const participantsRaw = row[2]?.trim() || "";
@@ -262,7 +331,6 @@ function convertSheetDataToProjects(data) {
       .map((p) => p.trim())
       .filter((p) => p);
     if (participants.length === 0) participants = ["Участник не указан"];
-
     let status = row[3]?.trim() || "Планирование";
     const validStatuses = [
       "Планирование",
@@ -271,7 +339,6 @@ function convertSheetDataToProjects(data) {
       "Завершен",
     ];
     if (!validStatuses.includes(status)) status = "Планирование";
-
     projects.push({
       id: Date.now() + i + Math.random(),
       name: name,
@@ -289,9 +356,7 @@ async function importFromGoogleSheets(sheetUrl) {
     showToast("❌ Неверная ссылка на Google таблицу");
     return false;
   }
-
   const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
-
   try {
     showToast("⏳ Загрузка данных из Google Sheets...");
     const response = await fetch(csvUrl);
@@ -301,7 +366,6 @@ async function importFromGoogleSheets(sheetUrl) {
       );
     }
     const csvText = await response.text();
-
     const rows = csvText.split(/\r?\n/);
     const data = rows.map((row) => {
       const result = [];
@@ -321,19 +385,15 @@ async function importFromGoogleSheets(sheetUrl) {
       result.push(current.trim());
       return result;
     });
-
     if (data.length < 2) {
       showToast("❌ Таблица не содержит данных");
       return false;
     }
-
     const newProjects = convertSheetDataToProjects(data);
-
     if (newProjects.length === 0) {
       showToast("❌ Не найдено проектов для импорта");
       return false;
     }
-
     projects.push(...newProjects);
     saveProjects();
     renderProjects();
@@ -396,6 +456,9 @@ document.getElementById("cancelModalBtn").addEventListener("click", closeModal);
 document
   .getElementById("saveProjectBtn")
   .addEventListener("click", saveProject);
+document
+  .getElementById("addParticipantBtn")
+  .addEventListener("click", addParticipantField);
 
 document.getElementById("projectName").addEventListener("input", (e) => {
   document.getElementById("nameCounter").innerText = e.target.value.length;
