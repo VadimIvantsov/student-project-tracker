@@ -519,3 +519,21 @@ body {
   padding: 40px;
   color: #62748c;
 }
+
+.btn-add-participant {
+  background: none;
+  border: 1px dashed #cbd5e1;
+  border-radius: 40px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.2s;
+  color: #1e4a8a;
+  font-weight: 500;
+}
+
+.btn-add-participant:hover {
+  background: #eef2ff;
+  border-color: #1e4a8a;
+}
