@@ -111,11 +111,54 @@
           maxlength="200"
         ></textarea>
         <div class="char-counter"><span id="descCounter">0</span>/200</div>
-        <input
-          type="text"
-          id="projectParticipants"
-          placeholder="Участники (через запятую)"
-        />
+
+        <label style="display: block; margin-bottom: 8px; font-weight: 500"
+          >Участники</label
+        >
+        <div id="participantsContainer">
+          <div
+            class="participant-field"
+            style="display: flex; gap: 8px; margin-bottom: 12px"
+          >
+            <input
+              type="text"
+              class="participant-name"
+              placeholder="ФИО участника"
+              style="flex: 1"
+            />
+            <button
+              type="button"
+              class="btn-remove-participant"
+              style="
+                background: #fee2e2;
+                border: none;
+                border-radius: 20px;
+                padding: 0 12px;
+                cursor: pointer;
+                color: #991b1b;
+              "
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+        <button
+          type="button"
+          id="addParticipantBtn"
+          class="btn-add-participant"
+          style="
+            background: none;
+            border: 1px dashed #cbd5e1;
+            border-radius: 40px;
+            padding: 8px 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            width: 100%;
+          "
+        >
+          + Добавить участника
+        </button>
+
         <select id="projectStatus">
           <option value="Планирование">📋 Планирование</option>
           <option value="В работе">⚙️ В работе</option>
